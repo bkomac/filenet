@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget id="com.ionicframework.filenet322141" version="1.0.1"
+<widget id="com.ionicframework.filenet322141" version="1.0.2"
 	xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
 	<name>FileNet</name>
 	<description>
-		Store documents permanent or not.
+		Non/permantent document storage.
 	</description>
 	<author email="android@komac.si" href="lab.komac.si">
 		Borut Komac
