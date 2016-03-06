@@ -1,0 +1,28 @@
+<ion-view view-title="FileNet - Add content"> <ion-content>
+
+<div class="button-bar" style="padding: 8px" ng-show="image.dataURL == null">
+	<button class="button button icon-left ion-ios-camera button-positive" ng-click="takePic()" ng-show="image.dataURL == null">Take a picture...</button>
+	<button class="button button icon-left ion-images button-outline button-positive" ng-click="fromGallery()" ng-show="image.dataURL == null">From Gallery...</button>
+
+</div>
+
+<div class="button-bar" style="padding: 8px" ng-show="image.dataURL != null">
+	<button class="button button icon-left ion-checkmark-circled button-positive" ng-click="add()" ng-show="image.dataURL != null">Save document</button>
+	<button class="button button icon-left ion-close-circled button-outline button-positive" ng-click="cancel()" ng-show="image.dataURL != null">Cancel</button>
+</div>
+<br>
+<div class="list">
+	<label class="item item-input"> <input type="text" ng-model="doc.tags" placeholder="Enter document name or tag">
+	</label> <label class="item item-input item-select"> <span class="input-label">Document expire</span> <select ng-model="doc.expireSelect"
+		ng-change="onChangeExpireSelectValue(doc.expireSelect)">
+			<option value="31">After one month</option>
+			<option value="365" selected>After one year</option>
+			<option value="99999">Never</option>
+	</select>
+	</label>
+
+</div>
+<div id="wraper" style="width: 100%; height: 300px; overflow: scroll;">
+	<img data-ng-src="{{image.dataURL}}" ng-show="image.dataURL != null" width=100% />
+</div>
+</ion-content> </ion-view>

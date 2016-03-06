@@ -1,0 +1,22 @@
+<ion-view view-title="FileNet - Search"> 
+<ion-nav-buttons side="right">
+<small ng-show="lastSynced != null">Last synced @ {{lastSynced | date:'H:mm:ss'}}</small>
+<small ng-show="syncMsg != null">{{syncMsg}}</small>
+        <button class="right button button-icon icon ion-loop" ng-click="sync()"></button>
+</ion-nav-buttons>
+
+<ion-content>
+<div class="list">
+
+	<a class="item item-thumbnail-left" href="#/tab/search/{{document.doc._id}}" ng-repeat="document in docList"> 
+	    <img data-ng-src="{{getImage(document.doc.thumb)}}" data-err-src="img/splash1.png">
+		<h2>{{document.doc.tag}}</h2>
+		<p>
+			Added on {{document.doc.tst | date:'d.M.yyyy'}}
+		</p>
+	</a>
+	
+</div>
+
+
+</ion-content> </ion-view>
