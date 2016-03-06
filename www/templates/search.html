@@ -4,19 +4,27 @@
 <small ng-show="syncMsg != null">{{syncMsg}}</small>
         <button class="right button button-icon icon ion-loop" ng-click="sync()"></button>
 </ion-nav-buttons>
-
 <ion-content>
-<div class="list">
+<div class="list list-inset">
+  <label class="item item-input">
+    <i class="icon ion-search placeholder-icon"></i>
+    <input type="text" placeholder="Search your FileNet" ng-model="searchKey" ng-change="search(searchKey)">
+    <a ng-click="tolledgeDelete()" class="button button-icon icon ion-minus-circled positive"></a>
+  </label>
+  
+</div>
 
-	<a class="item item-thumbnail-left" href="#/tab/search/{{document.doc._id}}" ng-repeat="document in docList"> 
-	    <img data-ng-src="{{getImage(document.doc.thumb)}}" data-err-src="img/splash1.png">
+<ion-list show-delete="deleteEnabled">                 
+  <ion-item ng-click="toView(document.doc._id)" ng-repeat="document in docList track by document.doc._id" class="item item-thumbnail-left enable-pointer-events">
+	 	<img data-ng-src="{{getImage(document.doc.thumb)}}" data-err-src="img/splash1.png">
 		<h2>{{document.doc.tag}}</h2>
 		<p>
 			Added on {{document.doc.tst | date:'d.M.yyyy'}}
+			
 		</p>
-	</a>
-	
-</div>
+    <ion-delete-button class="ion-minus-circled" ng-click="deleteItem(document.doc._id)"></ion-delete-button>
+  </ion-item>
+</ion-list>
 
 
 </ion-content> </ion-view>

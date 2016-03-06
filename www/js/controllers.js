@@ -138,14 +138,29 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 
 	$scope.lastSynced = null;
 	$scope.syncMsg = null;
+	$scope.deleteEnabled = false;
 
 	$scope.$on('$ionicView.enter', function(e) {
 		console.log("SearchCtrl enter...");
-
-		Db.find("Rac").then(function(list) {
+		$scope.syncMsg = null;
+		
+//		Db.find("Rac").then(function(list) {
+//			$scope.$apply(function(){
+//				$scope.docList = list.rows;
+//				$scope.syncMsg = null;
+//				
+//				Utils.log(list.rows);
+//			});
+//			
+//		}, function(err) {
+//			Util.toast(err);
+//		});
+	});
+	
+	$scope.search = function(key){
+		Db.find(key).then(function(list) {
 			$scope.$apply(function(){
 				$scope.docList = list.rows;
-				$scope.syncMsg = null;
 				
 				Utils.log(list.rows);
 			});
@@ -153,7 +168,19 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 		}, function(err) {
 			Util.toast(err);
 		});
-	});
+	};
+	
+	$scope.toView = function(docId){
+		Utils.log("change view: "+docId);
+		$window.location.hash = '#/tab/search/'+docId;
+	}
+	
+	$scope.tolledgeDelete = function() {
+		if ($scope.deleteEnabled)
+			$scope.deleteEnabled = false;
+		else
+			$scope.deleteEnabled = true;
+	}
 
 	$scope.getImage = function(data) {
 		return 'data:image/jpeg;base64,' + data;

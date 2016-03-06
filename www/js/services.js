@@ -55,8 +55,16 @@ angular.module('starter.services', ['ngCordova'])
 		},
 		
 		find : function(tag) {
+			Utils.log("key:"+tag.toUpperCase());
+			tag = tag.toUpperCase();
 			
-			return pdb.allDocs({include_docs: true});
+			return pdb.query(
+				function (doc, emit) {
+					
+					if(doc.tag != null && tag != '')
+						  emit(doc.tag.toUpperCase());
+						
+				}, {startkey: tag, endkey: tag + "\u9999", include_docs: true})
 			
 		},
 
@@ -76,7 +84,8 @@ angular.module('starter.services', ['ngCordova'])
 			else
 				return pdb.get(id);
 		},
-			sync : function() { 
+		
+		sync : function() { 
 			pdb.sync(remotePdb);
 		},
 		
