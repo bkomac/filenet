@@ -57,14 +57,18 @@ angular.module('starter.services', ['ngCordova'])
 		find : function(tag) {
 			Utils.log("key:"+tag.toUpperCase());
 			tag = tag.toUpperCase();
-			
-			return pdb.query(
-				function (doc, emit) {
+			if(tag == '.'){
+				return pdb.allDocs({include_docs: true});
+				
+			}else{
+				return pdb.query(
+						function (doc, emit) {
 					
-					if(doc.tag != null && tag != '')
-						  emit(doc.tag.toUpperCase());
+							if(doc.tag != null && tag != '')
+								emit(doc.tag.toUpperCase());
 						
-				}, {startkey: tag, endkey: tag + "\u9999", include_docs: true})
+						}, {startkey: tag, endkey: tag + "\u9999", include_docs: true});
+			}
 			
 		},
 
@@ -83,6 +87,13 @@ angular.module('starter.services', ['ngCordova'])
 				return pdb.get(id, {attachments: true});
 			else
 				return pdb.get(id);
+		},
+		
+		remove : function(id) {
+			return pdb.get(id).then(function(doc) {
+				   pdb.remove(doc);
+				});
+				
 		},
 		
 		sync : function() { 

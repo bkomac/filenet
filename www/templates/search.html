@@ -5,13 +5,14 @@
         <button class="right button button-icon icon ion-loop" ng-click="sync()"></button>
 </ion-nav-buttons>
 <ion-content>
-<div class="list list-inset">
-  <label class="item item-input">
-    <i class="icon ion-search placeholder-icon"></i>
-    <input type="text" placeholder="Search your FileNet" ng-model="searchKey" ng-change="search(searchKey)">
-    <a ng-click="tolledgeDelete()" class="button button-icon icon ion-minus-circled positive"></a>
-  </label>
-  
+<div class="list">
+	<div class="item item-input-inset">
+  		<label class="item-input-wrapper">
+   		 <i class="icon ion-search placeholder-icon"></i>
+    	<input type="text" placeholder="Search your FileNet" ng-model="searchKey" ng-change="search(searchKey)">
+ 		 </label>
+  	<button ng-click="tolledgeDelete()" class="button button-icon icon ion-minus-circled positive"></button>
+  </div>
 </div>
 
 <ion-list show-delete="deleteEnabled">                 
@@ -22,7 +23,7 @@
 			Added on {{document.doc.tst | date:'d.M.yyyy'}}
 			
 		</p>
-    <ion-delete-button class="ion-minus-circled" ng-click="deleteItem(document.doc._id)"></ion-delete-button>
+    <ion-delete-button class="ion-minus-circled" ng-click="deleteDoc(document.doc._id)"></ion-delete-button>
   </ion-item>
 </ion-list>
 

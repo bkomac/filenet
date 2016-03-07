@@ -81,20 +81,21 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 
 		if (DEV) {
 			currentImageData = testImage;
-			$scope.image.dataURL = "data:image/jpeg;base64," + currentImageData;
+			$scope.image.dataURL = "data:image/png;base64," + currentImageData;
 		}else{
 		
 			$cordovaCamera.getPicture({
 				quality : 95,
-				targetWidth : 1000,
-				targetHeight : 1000,
+				targetWidth : 1200,
+				targetHeight : 1200,
 				correctOrientation : true,
 				allowEdit : false,
+				encodingType : 1,
 				destinationType : Camera.DestinationType.DATA_URL
 			}).then(
 	
 			function onSuccess(imageData) {
-				$scope.image.dataURL = "data:image/jpeg;base64," + imageData;
+				$scope.image.dataURL = "data:image/png;base64," + imageData;
 				currentImageData = imageData;
 	
 				$cordovaCamera.cleanup();
@@ -111,15 +112,16 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 
 		$cordovaCamera.getPicture({
 			quality : 95,
-			targetWidth : 1000,
-			targetHeight : 1000,
+			targetWidth : 1200,
+			targetHeight : 1200,
 			correctOrientation : true,
+			encodingType : 1,
 			destinationType : Camera.DestinationType.DATA_URL,
 			sourceType : 0
 		}).then(
 
 		function onSuccess(imageData) {
-			$scope.image.dataURL = "data:image/jpeg;base64," + imageData;
+			$scope.image.dataURL = "data:image/png;base64," + imageData;
 			currentImageData = imageData;
 
 			$cordovaCamera.cleanup();
@@ -139,25 +141,16 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 	$scope.lastSynced = null;
 	$scope.syncMsg = null;
 	$scope.deleteEnabled = false;
+	$scope.key = "";
 
 	$scope.$on('$ionicView.enter', function(e) {
 		console.log("SearchCtrl enter...");
 		$scope.syncMsg = null;
 		
-//		Db.find("Rac").then(function(list) {
-//			$scope.$apply(function(){
-//				$scope.docList = list.rows;
-//				$scope.syncMsg = null;
-//				
-//				Utils.log(list.rows);
-//			});
-//			
-//		}, function(err) {
-//			Util.toast(err);
-//		});
 	});
 	
 	$scope.search = function(key){
+		$scope.key = key;
 		Db.find(key).then(function(list) {
 			$scope.$apply(function(){
 				$scope.docList = list.rows;
@@ -175,11 +168,22 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 		$window.location.hash = '#/tab/search/'+docId;
 	}
 	
+	$scope.deleteDoc = function(docId){
+		Utils.log("Delete doc: "+docId);
+		Db.remove(docId).then(function(r){
+			$scope.search($scope.key);
+			Utils.log("Delete OK");
+		}).catch(function(e){
+			Utils.log(e);
+		});
+		
+	}
+	
 	$scope.tolledgeDelete = function() {
-		if ($scope.deleteEnabled)
-			$scope.deleteEnabled = false;
-		else
-			$scope.deleteEnabled = true;
+		if(!$scope.deleteEnabled && !$scope.docList )
+			Util.toast("This is used for removing documnets. Find some document first!");
+		
+		$scope.deleteEnabled = !$scope.deleteEnabled;
 	}
 
 	$scope.getImage = function(data) {
@@ -212,10 +216,12 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 			  });
 		});
 	}
+	
+	
 
 })
 
-.controller('DocDetailCtrl', function($scope, $stateParams, Db, Util) {
+.controller('DocDetailCtrl', function($scope, $stateParams, Db, Util, $cordovaSocialSharing) {
 	
 	var myScroll = new IScroll('#wraper', {
 		zoom: true,
@@ -240,28 +246,25 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 			  Util.toast(err);
 		});
 		
-		
 	});
+	
+	$scope.share = function(docId){
+		
+		$cordovaSocialSharing
+		    .share(null, $scope.document.tag, 'data:image/png;base64,'+$scope.document._attachments.image.data, null) // Share via native share sheet
+		    .then(function(result) {
+		    	 Util.toast("Document shared!");
+		    }, function(err) {
+		    	Util.toast("Error sharing document.");
+		    });
+	
+	}
 
 })
 
 .controller('SettingsCtrl', function($scope, Db, $cordovaToast) {
 
-	window.requestFileSystem(window.PERSISTENT, 5 * 1024 * 1024, function(fs) {
-		console.log("FS ok");
-	}, function(e) {
-		Utils.log("FS not ok ");
-		Utils.echo(e);
-	});
-
-	$scope.backups = [];
-	$scope.restore = function() {
-		Db.restoreDBfromFile();
-	};
-
-	$scope.backup = function() {
-		Db.backupDBtoFile();
-	};
+	$scope.imageSize = 1200;
 
 });
 
