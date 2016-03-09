@@ -1,11 +1,13 @@
+var remoteDb = 'http://ws.komac.si:40000/filenetdb';
+
 angular.module('starter.services', ['ngCordova'])
 
-.factory('Db', function($q) {
+.factory('Db', function($q, Util) {
 	
 	var pouchDbName = 'flieNetDb';
 	var pdb = new PouchDB(pouchDbName);
 
-	var remotePdb = new PouchDB('http://ws.komac.si:40000/filenetdb');
+	var remotePdb = new PouchDB(remoteDb);
 
 	return {
 
@@ -135,6 +137,15 @@ angular.module('starter.services', ['ngCordova'])
 		sync : function() { 
 			
 			return pdb.sync(remotePdb);
+		},
+		
+		compact : function() {
+
+			pdb.compact().then(function (result) {
+				Util.toast("DB compact finished.");
+			}).catch(function (err) {
+				Util.toast("Error with DB compaction.");
+			});
 		},
 		
 		backupDBtoFile : function() {

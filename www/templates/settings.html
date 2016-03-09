@@ -10,6 +10,22 @@
 			class="icon ion-image"></i>
 			</p>
 	</div>
+	<div class="item item-button-right">
+    Remote DB url: <p>{{remoteDb}}</p>
+    
+  </div>
+	<div class="item item-button-right">
+    Sync database
+    <button class="button button-positive" ng-click="syncDB()">
+      <i class="icon ion-loop"></i>
+    </button>
+  </div>
+	<div class="item item-button-right">
+    Compact database
+    <button class="button button-positive" ng-click="compactDB()">
+      <i class="icon ion-soup-can-outline"></i>
+    </button>
+  </div>
 </div>
 
 

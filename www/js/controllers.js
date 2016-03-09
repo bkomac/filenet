@@ -313,9 +313,27 @@ angular.module('starter.controllers', [ 'ngCordova', 'ngStorage' ])
 
 })
 
-.controller('SettingsCtrl', function($scope, Db, $cordovaToast) {
+.controller('SettingsCtrl', function($scope, Db, $cordovaToast, $ionicLoading, Util) {
 
 	$scope.imageSize = 1200;
+	
+	$scope.compactDB= function(){
+		Db.compact();
+	}
+	
+	$scope.syncDB = function(){
+		$ionicLoading.show();
+		Db.sync().then(function() {
+			$ionicLoading.hide();
+			Util.toast("Documents are up to date!");
+
+		}).catch(function (err) {
+			$ionicLoading.hide();
+			Util.toast("Error syncing documents!");
+		});
+	}
+	
+	$scope.remoteDb = remoteDb;
 
 });
 
