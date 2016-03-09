@@ -1,6 +1,6 @@
 var DEV = false;
 
-angular.module('starter', [ 'ionic', 'starter.controllers', 'starter.services', 'ngCordova' ])
+angular.module('starter', [ 'ionic', 'starter.controllers', 'starter.services', 'ngCordova', 'ngStorage' ])
 
 .run(function($ionicPlatform, Db) {
 	$ionicPlatform.ready(function() {

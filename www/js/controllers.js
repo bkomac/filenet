@@ -1,6 +1,6 @@
-angular.module('starter.controllers', [ 'ngCordova' ])
+angular.module('starter.controllers', [ 'ngCordova', 'ngStorage' ])
 
-.controller('AddCtrl', function($scope, Db, $cordovaCamera, $cordovaToast, Util) {
+.controller('AddCtrl', function($scope, Db, $cordovaCamera, $cordovaToast, Util, $localStorage, $ionicLoading) {
 	
 	var myScroll = new IScroll('#wraper', {
 		zoom: true,
@@ -11,7 +11,12 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 	
 	$scope.$on('$ionicView.enter', function(e) {
 		console.log("*** AddCtrl enter");
-		if (currentImageData == null)
+		$scope.$storage = $localStorage;
+		
+		$scope.$storage.currentImageData = null;
+		$scope.$storage.currentThumbData = null;
+		
+		if ($scope.$storage.currentImageData == null)
 			$scope.image = {};
 
 		if ($scope.docexpireSelect == undefined) {
@@ -19,8 +24,7 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 		}
 
 	});
-
-	var currentImageData = null;
+	
 	var expire = 365 * 24 * 60 * 60 * 1000
 	// var image = document.getElementById('pic');
 	$scope.image = {};
@@ -32,56 +36,58 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 	};
 	
 	$scope.cancel = function(){
-		currentImageData = null;
+		$scope.$storage.currentImageData = null;
+		$scope.$storage.currentThumbData = null;
 		$scope.doc = {};
 		$scope.image.dataURL = null;// '/9j/4AAQSkZJR';
 	}
 
 	$scope.add = function() {
-		console.log("Add...");
-
-		if (currentImageData != null) {
+		if ($scope.$storage.currentImageData != null) {
 
 			var id = new Date().getTime();
+			$ionicLoading.show();
 			var doc = {
-				id : id,
-				tag : $scope.doc.tags,
-				expire : expire,
-				tst : new Date().getTime(),
-				
-				_attachments:{
-				    'image': {
-				        'content_type': 'image/png',
-				        'data': currentImageData
-				    }
-				},
-				
-				thumb : currentImageData
-				
-			};
-
-			Db.put(doc).then(function() {
-				$scope.$apply(function(){
-					Util.toast("Document " + doc.tag + " added");
-					
-					currentImageData = null;
-					$scope.doc = {};
-					$scope.image.dataURL = null;// '/9j/4AAQSkZJR';
+	  				id : id,
+	  				tag : $scope.doc.tags,
+	  				expire : expire,
+	  				tst : new Date().getTime(),
+	  				
+	  				_attachments:{
+	  				    'image': {
+	  				        'content_type': 'image/png',
+	  				        'data': $scope.$storage.currentImageData
+	  				    }
+	  				},
+	  				thumb : $scope.$storage.currentImageData
+	  			};
+			
+			 Db.put(doc).then(function() {
+					$scope.$apply(function(){
+						$ionicLoading.hide();
+						Util.toast("Document " + doc.tag + " added");
+						
+						$scope.$storage.currentImageData = null;
+						$scope.$storage.currentThumbData = null;
+						$scope.doc = {};
+						$scope.image.dataURL = null;// '/9j/4AAQSkZJR';
+					});
+					Db.sync();
+				}).catch(function (err) {
+					$ionicLoading.hide();
+					Util.toast("Error: Document not added! ("+err.name+")");
 				});
-				Db.sync();
-			}).catch(function (err) {
-				  Util.toast("Error: Document not added! ("+err.name+")");
-			});
-
-		} 
-
+		} else{
+			Util.toast("No image!");
+		}
 	}
 
 	$scope.takePic = function() {
 
 		if (DEV) {
-			currentImageData = testImage;
-			$scope.image.dataURL = "data:image/png;base64," + currentImageData;
+			$scope.$storage.currentImageData = testImage;
+			$scope.image.dataURL = "data:image/png;base64," + $scope.$storage.currentImageData;
+			$scope.$storage.currentThumbData = testImage;
 		}else{
 		
 			$cordovaCamera.getPicture({
@@ -96,8 +102,22 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 	
 			function onSuccess(imageData) {
 				$scope.image.dataURL = "data:image/png;base64," + imageData;
-				currentImageData = imageData;
+				$scope.$storage.currentImageData = imageData;
 	
+//				if(window.imageResizer){
+//					$ionicLoading.show();
+//					window.imageResizer.resizeImage(
+//						      function(data) { 
+//						      
+//						    	  $scope.$storage.currentThumbData = data.imageData;
+//						    	  
+//						      }, function (error) {
+//						    	  $ionicLoading.hide();
+//						    	  Util.toast("Error: " + error);
+//						      }, imageData, 0.5, 0.5, {resizeType:ImageResizer.RESIZE_TYPE_FACTOR ,format:'png'});
+//				}
+				
+				
 				$cordovaCamera.cleanup();
 			},
 	
@@ -110,6 +130,14 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 
 	$scope.fromGallery = function() {
 
+		if (DEV) {
+			$scope.$storage.currentImageData = testImage;
+			$scope.image.dataURL = "data:image/png;base64," + $scope.$storage.currentImageData;
+			$scope.$storage.currentThumbData = testImage;
+			
+		}else{
+			
+		$ionicLoading.show();
 		$cordovaCamera.getPicture({
 			quality : 95,
 			targetWidth : 1200,
@@ -119,19 +147,21 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 			destinationType : Camera.DestinationType.DATA_URL,
 			sourceType : 0
 		}).then(
-
 		function onSuccess(imageData) {
+			$ionicLoading.hide();
 			$scope.image.dataURL = "data:image/png;base64," + imageData;
-			currentImageData = imageData;
-
+			$scope.$storage.currentImageData = imageData;
+			
 			$cordovaCamera.cleanup();
 		},
 
 		function onFail(message) {
+			$ionicLoading.hide();
 			if (message != "Selection cancelled.")
 				Util.toast('Image canceled: ' + message);
 		});
 
+		}
 	}
 
 })
@@ -151,16 +181,33 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 	
 	$scope.search = function(key){
 		$scope.key = key;
-		Db.find(key).then(function(list) {
-			$scope.$apply(function(){
-				$scope.docList = list.rows;
+		if(key.length >= 2 && key != " "){
 				
-				Utils.log(list.rows);
+			if(key == "."){
+				Db.find(key).then(function(list) {
+					$scope.$apply(function(){
+						$scope.docList = list.rows;
+						
+						Utils.log(list);
+					});
+					
+				}, function(err) {
+					Util.toast(err);
+				});
+				
+			}else{
+			Db.find2(key).then(function(list) {
+				$scope.$apply(function(){
+					$scope.docList = list.rows;
+					
+				});
+				
+			}, function(err) {
+				Util.toast(err);
 			});
 			
-		}, function(err) {
-			Util.toast(err);
-		});
+			}
+		}
 	};
 	
 	$scope.toView = function(docId){
@@ -251,7 +298,11 @@ angular.module('starter.controllers', [ 'ngCordova' ])
 	$scope.share = function(docId){
 		
 		$cordovaSocialSharing
-		    .share(null, $scope.document.tag, 'data:image/png;base64,'+$scope.document._attachments.image.data, null) // Share via native share sheet
+		    .share(null, $scope.document.tag, 'data:image/png;base64,'+$scope.document._attachments.image.data, null) // Share
+																														// via
+																														// native
+																														// share
+																														// sheet
 		    .then(function(result) {
 		    	 Util.toast("Document shared!");
 		    }, function(err) {

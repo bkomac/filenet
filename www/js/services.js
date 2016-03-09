@@ -71,6 +71,33 @@ angular.module('starter.services', ['ngCordova'])
 			}
 			
 		},
+		
+		find2 : function(tag){
+			var tag = tag.toUpperCase();
+			
+			Utils.log("key:"+tag);
+			var ddoc = {
+					  _id: '_design/index',
+					  views: {
+					    index: {
+					      map: function (doc) {
+									emit(doc.tag.toUpperCase());
+								}.toString()
+					    }
+					  }
+					};
+
+				return pdb.put(ddoc).catch(function (err) {
+					  if (err.status !== 409) {
+						  Utils.log("E:"+err);
+					    throw err;
+					  }
+					  // ignore if doc already exists
+					}).then(function () {
+					  return pdb.query('index', {startkey: tag, endkey: tag + "\u9999", include_docs: true});
+					});
+			
+		},
 
 		put : function(document) {
 
