@@ -196,10 +196,10 @@ angular.module('starter.controllers', [ 'ngCordova', 'ngStorage' ])
 				});
 				
 			}else{
-			Db.find2(key).then(function(list) {
+			Db.search(key).then(function(list) {
 				$scope.$apply(function(){
 					$scope.docList = list.rows;
-					
+					Utils.log(list);
 				});
 				
 			}, function(err) {

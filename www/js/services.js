@@ -4,12 +4,29 @@ angular.module('starter.services', ['ngCordova'])
 
 .factory('Db', function($q, Util) {
 	
+	// var PouchDB = require('pouchdb');
+	// PouchDB.plugin(require('pouchdb-quick-search'));
+	
+	
 	var pouchDbName = 'flieNetDb';
 	var pdb = new PouchDB(pouchDbName);
+	
+	
 
 	var remotePdb = new PouchDB(remoteDb);
 
 	return {
+		
+		search : function(tag){
+			Utils.log("search:"+tag);
+			return pdb.search({
+				  query: tag,
+				  fields: ['tag'],
+				  mm: '10%',
+				  include_docs: true
+				});
+			
+		},
 
 		findX : function(tag) {
 			console.log("find: " + tag);
@@ -255,10 +272,16 @@ angular.module('starter.services', ['ngCordova'])
 	}
 });
 
-var document = {
-	id: 0,
+var doc = {
 	tag : '',
-	tst : null,
-	image : null
-
-}
+	expire : 365,
+	tst : new Date().getTime(),
+	
+	_attachments:{
+	    image: {
+	        content_type: 'image/png',
+	        data: ''
+	    }
+	},
+	thumb : ''
+};
